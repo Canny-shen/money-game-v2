@@ -23,7 +23,6 @@
   button.secondary{background:#e2e8f0;color:#111}
   small.helper{color:var(--muted)}
 
-  /* 頭像卡 */
   #avatars{display:flex;flex-wrap:wrap;gap:10px}
   .avatar{position:relative;width:150px;border:2px solid #ccc;border-radius:12px;background:#fff8dc;cursor:pointer;padding:6px;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .15s,border-color .2s}
   .avatar:hover{transform:translateY(-2px);border-color:var(--primary)}
@@ -35,20 +34,17 @@
   .avatar.selected .pickedName{display:block}
   .avatar:disabled{opacity:.6;cursor:not-allowed}
 
-  /* 資訊列 */
   .stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
   .chip{background:#fff;border-radius:999px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-size:13px}
   .good{color:var(--good)} .bad{color:var(--bad)}
   .muted{color:var(--muted)}
 
-  /* 骰子與卡 */
   #dice{font-size:72px;cursor:pointer;user-select:none;margin-top:6px;text-align:center}
   #result{margin-top:6px;font-size:16px;text-align:center;color:#334155;min-height:22px}
   #card{display:none;border:2px solid var(--accent);padding:12px;margin:10px 0 0;border-radius:14px;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.12)}
   #card h3{margin:4px 0 6px}
   #card .amount{font-weight:700}
 
-  /* 棋盤 */
   .boardWrap{position:sticky; top:8px}
   .boardTitle{margin:0 0 8px}
   .board{display:grid; grid-template-columns:repeat(8, 70px); grid-template-rows:repeat(8, 70px); gap:4px; background:#dbeafe; padding:6px; border-radius:12px;}
@@ -60,7 +56,6 @@
   .pill .nm{font-size:9px;line-height:1;margin-top:1px;color:#111}
   #tileInfo{margin-top:6px;font-size:14px}
 
-  /* 表格 */
   #holdings{width:100%; overflow:auto; border-top:1px dashed #cbd5e1; margin-top:8px; padding-top:8px}
   #holdings table{width:100%; border-collapse:collapse; font-size:12px}
   #holdings th,#holdings td{border-bottom:1px solid #eef2f7; padding:6px 4px; text-align:right}
@@ -70,7 +65,6 @@
   details{margin-top:8px}
   summary{cursor:pointer}
 
-  /* 銀行區塊 */
   #bankActions{display:none;border-top:1px dashed #cbd5e1; margin-top:8px; padding-top:8px}
   #loanList{width:100%}
   #loanList table{width:100%; border-collapse:collapse; font-size:12px}
@@ -78,7 +72,6 @@
   #loanList th:first-child,#loanList td:first-child{text-align:left}
   .careerBox{background:#f8fbff;border:1px solid #dbeafe;border-radius:10px;padding:8px;margin-top:8px}
 
-  /* Toast */
   #toast{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
   .toast{background:#111827;color:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 8px 20px rgba(0,0,0,.2);opacity:.95;font-size:14px}
   .toast.good{background:#065f46}
@@ -150,7 +143,7 @@
               <p id="cardText">內容會在這裡出現</p>
               <p class="amount" id="cardAmount"></p>
 
-              <!-- 股票操作列（保留） -->
+              <!-- 股票操作列 -->
               <div id="stockActions" class="row" style="display:none">
                 <div>📈 標的：
                   <select id="stockSelect"></select>
@@ -242,7 +235,6 @@
 
 <script>
 addEventListener('DOMContentLoaded', () => {
-  // ========= 小工具 =========
   const $ = id => document.getElementById(id);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const money = n => Number(n).toLocaleString('zh-TW', {maximumFractionDigits:0});
@@ -255,7 +247,6 @@ addEventListener('DOMContentLoaded', () => {
     box.appendChild(div); setTimeout(()=>div.remove(), 3500);
   }
 
-  // 角色圖：內嵌 SVG
   function svgAnimal(emoji, bg){
     const svg = `<?xml version='1.0' encoding='UTF-8'?>
       <svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>
@@ -276,7 +267,6 @@ addEventListener('DOMContentLoaded', () => {
     { name: '小企鵝', emoji:'🐧', bg:'#CBD5E1' }
   ].map(c => ({ ...c, img: svgAnimal(c.emoji, c.bg) }));
 
-  // ========= 職業與升職 =========
   const JOBS = [
     {id:'engineer', name:'工程師', base:800, ranks:[
       {title:'初階', req:{laps:0,  courses:{}}},
@@ -328,9 +318,7 @@ addEventListener('DOMContentLoaded', () => {
     ], mult:[1,1.4,1.9,2.7]},
   ];
   function jobById(id){ return JOBS.find(j=>j.id===id)||JOBS[0]; }
-  function salaryOf(p){
-    const j=jobById(p.jobId), r=p.jobRank||0; return Math.round(j.base * (j.mult[r]||1));
-  }
+  function salaryOf(p){ const j=jobById(p.jobId), r=p.jobRank||0; return Math.round(j.base * (j.mult[r]||1)); }
   function canPromote(p){
     const j=jobById(p.jobId); const r=p.jobRank||0;
     if(r>=j.ranks.length-1) return {ok:false, info:'已達頂階'};
@@ -339,14 +327,11 @@ addEventListener('DOMContentLoaded', () => {
     return {ok: needLaps && needCourses, next, reason: {needLaps, needCourses}};
   }
 
-  // ========= DOM 參照 =========
   const nameInput=$('nameInput'), startMoneyInput=$('startMoney'), roundLimitInput=$('roundLimit');
   const jobSelect=$('jobSelect');
-
   const avatarsEl=$('avatars');
   const startBtn=$('startGame'), quickNewBtn=$('quickNew'), reseedNewBtn=$('reseedNew');
   const saveBtn=$('saveGame'), loadBtn=$('loadGame'), newSlotBtn=$('newSlot');
-
   const gameEl=$('game'), setupEl=$('setup'), leftCol=document.querySelector('.leftCol');
 
   const currentPlayerNameEl=$('currentPlayerName');
@@ -369,14 +354,12 @@ addEventListener('DOMContentLoaded', () => {
 
   const boardEl=$('board'), tileInfoEl=$('tileInfo'), ledgerEl=$('ledger'), leaderboardEl=$('leaderboard'), testOutput=$('testOutput');
 
-  // ========= 狀態 =========
   let players=[]; let currentIndex=0; let gameOver=false;
   let roundNow=1; let roundMax=200;
   const allLedger=[];
   const GRID=8;
   let marketTimer=null;
 
-  // 存檔（localStorage）
   let saveSlot = localStorage.getItem('mg_active_slot') || 'slot1';
   function gameSnapshot(){
     return {
@@ -407,19 +390,11 @@ addEventListener('DOMContentLoaded', () => {
   function loadFromSlot(slot){ const key=`mg_${slot}`; const raw=localStorage.getItem(key); if(!raw){ toast(`找不到 ${slot} 的存檔`,`bad`); return false; } const ok=gameRestore(JSON.parse(raw)); if(ok){ localStorage.setItem('mg_active_slot',slot); saveSlot=slot; toast(`已從 ${slot} 載入 ✅`,'good'); gameEl.style.display='block'; renderStats(); renderBoard(); } return ok; }
   function autoSave(){ if(!players?.length) return; const key=`mg_${saveSlot}`; localStorage.setItem(key, JSON.stringify(gameSnapshot())); }
 
-  // 台灣情境利率（可依需要調整）
-  const RATES = {
-    depositAPY: 0.015,              // 銀行活存年利率（約 1.5%）
-    loanPropertyBase: 0.025,        // 地產貸款年利率起點
-    loanStockBase: 0.045            // 股票融資年利率起點
-  };
+  const RATES = { depositAPY: 0.015, loanPropertyBase: 0.025, loanStockBase: 0.045 };
   function rateFor(purpose, years){ const y = clamp(parseInt(years,10)||1,1,5); if(purpose==='property') return RATES.loanPropertyBase + (y-1)*0.002; return RATES.loanStockBase + (y-1)*0.003; }
-  const PER_LAP = 12; // 一圈視為「月」
-
-  // 保險
+  const PER_LAP = 12;
   const INSURANCE = { premium: 600, claim: 800 };
 
-  // === 股票市場：20 檔（含殖利率），漲跌幅限制 ±10%，新聞偏移與停牌 ===
   const MARKET={
     list: [
       {symbol:'LION', name:'雄獅'}, {symbol:'BEAR', name:'棕熊'}, {symbol:'FOX', name:'狐狸'},
@@ -434,7 +409,7 @@ addEventListener('DOMContentLoaded', () => {
     init(){
       this.list.forEach((s,i)=>{
         this.price[s.symbol] = 60 + Math.round((i+1)* (240/this.list.length)) + Math.floor(Math.random()*20);
-        this.yield[s.symbol] = +(0.02 + Math.random()*0.04).toFixed(3); // 2%~6%
+        this.yield[s.symbol] = +(0.02 + Math.random()*0.04).toFixed(3);
       });
       this.bias={}; this.halted={};
     },
@@ -456,7 +431,7 @@ addEventListener('DOMContentLoaded', () => {
       for(const s of this.list){
         const sym=s.symbol;
         if(this.halted[sym]>0){ this.halted[sym]-=1; continue; }
-        let base = (Math.random()*0.20)-0.10; // -10%~+10%
+        let base = (Math.random()*0.20)-0.10;
         if(this.bias[sym]?.ticks>0){ base += this.bias[sym].b; this.bias[sym].ticks -= 1; }
         base = Math.max(-0.10, Math.min(0.10, base));
         const p0=this.price[sym]; const np = Math.max(10, Math.round(p0*(1+base)));
@@ -466,7 +441,6 @@ addEventListener('DOMContentLoaded', () => {
   };
   MARKET.init();
 
-  // 8×8 螺旋路徑
   function spiralPath(n){
     const res=[]; let top=0,bottom=n-1,left=0,right=n-1;
     while(left<=right && top<=bottom){
@@ -478,9 +452,8 @@ addEventListener('DOMContentLoaded', () => {
     }
     return res;
   }
-  const PATH=spiralPath(GRID);
+  const GRID_N=8; const PATH=spiralPath(GRID_N);
 
-  // 投資事業
   const VENTURES = [
     {name:'咖啡小攤', base:0.55, win:[0.10,0.40], lose:[-0.30,-0.10]},
     {name:'二手電商', base:0.60, win:[0.15,0.50], lose:[-0.35,-0.08]},
@@ -489,18 +462,16 @@ addEventListener('DOMContentLoaded', () => {
     {name:'美食餐車', base:0.50, win:[0.15,0.60], lose:[-0.50,-0.15]}
   ];
 
-  // 事件卡池（移除原本單純收支，改為：課程 / 投資事業 / 住院）
   const EVENTS=[
-    { type:'course' }, { type:'course' }, { type:'course' },  // 提高機率遇到課程
+    { type:'course' }, { type:'course' }, { type:'course' },
     { type:'venture' }, { type:'venture' },
     { type:'injury' }
   ];
 
-  // 建盤：含地產（不再放 salary 格）
   function buildTiles(len){
     const tiles=[{ name:'起點', type:'start' }];
     let propId=1;
-    const weights={ event:0.35, shop:0.12, stock:0.12, tax:0.08, donate:0.05, property:0.28 };
+    const weights={ event:0.35, shop:0.12, stock:0.14, tax:0.08, donate:0.05, property:0.26 };
     const keys=Object.keys(weights);
     const pick=()=>{ let r=Math.random(); let acc=0; for(const k of keys){ acc+=weights[k]; if(r<=acc) return k; } return keys.at(-1); };
     for(let i=1;i<len;i++){
@@ -520,7 +491,6 @@ addEventListener('DOMContentLoaded', () => {
   }
   let TILES=buildTiles(PATH.length);
 
-  // === 幫助計算：地產 / 股票 / 銀行 / 貸款 / 淨值 ===
   function propertyValueForPlayer(playerIndex){
     let total=0;
     TILES.forEach(t=>{ if(t.type==='property' && t.ownerIndex===playerIndex){ total += (t.price||0) * (t.level||1); } });
@@ -536,25 +506,18 @@ addEventListener('DOMContentLoaded', () => {
     return (player.balance||0) + (player.bankDeposit||0) + propertyValueForPlayer(playerIndex) + stockValueOf(player) - loansOutstanding(player);
   }
 
-  // === UI：職業選單 ===
-  function buildJobSelect(){
-    jobSelect.innerHTML = JOBS.map(j=>`<option value="${j.id}">${j.name}（基薪 $${j.base}）</option>`).join('');
-  }
+  function buildJobSelect(){ jobSelect.innerHTML = JOBS.map(j=>`<option value="${j.id}">${j.name}（基薪 $${j.base}）</option>`).join(''); }
 
-  // === UI：角色頭像 ===
   function buildAvatars(){
     avatarsEl.innerHTML='';
     CHARACTERS.forEach(c=>{
       const div=document.createElement('button');
       div.type='button'; div.className='avatar';
       const imgWrap=document.createElement('div'); imgWrap.className='imgWrap'; div.appendChild(imgWrap);
-
       const visual=document.createElement('div'); visual.style.fontSize='64px'; visual.style.lineHeight='1'; visual.textContent=c.emoji; imgWrap.appendChild(visual);
       const img=new Image(); img.alt=c.name; img.onload=()=>visual.replaceWith(img); img.src=c.img;
-
       const picked=document.createElement('div'); picked.className='pickedName'; picked.textContent=''; imgWrap.appendChild(picked);
       const label=document.createElement('span'); label.textContent=c.name; div.appendChild(label);
-
       div.addEventListener('click',()=>{
         const customName=nameInput?.value.trim(); const jobId=jobSelect?.value;
         if(!customName){ alert('請先輸入名稱'); return; }
@@ -564,9 +527,7 @@ addEventListener('DOMContentLoaded', () => {
         players.push({
           name:customName, img:(img.src||''), income:0, expense:0, balance:0, ledger:[],
           pos:0, stocks: stockBag, bankDeposit:0, loans:[], skipTurns:0, laps:0, 
-          // 職涯
           jobId, jobRank:0, courses:{finance:0,econ:0,mgmt:0}, courseBuffNext:0,
-          // 投資事業/保險
           pendingVenture:null, insured:false
         });
         picked.textContent=customName;
@@ -574,16 +535,14 @@ addEventListener('DOMContentLoaded', () => {
         nameInput.value='';
         renderBoard(); renderStats();
       });
-
       avatarsEl.appendChild(div);
     });
   }
 
-  // === 棋盤繪製 ===
   function renderBoard(){
     if(!boardEl){ console.error('找不到 #board'); return; }
     boardEl.innerHTML='';
-    const total = GRID*GRID;
+    const total = GRID_N*GRID_N;
     for(let i=0;i<total;i++){
       const cell=document.createElement('div'); cell.className='cell'; cell.dataset.idx=i; boardEl.appendChild(cell);
     }
@@ -621,7 +580,6 @@ addEventListener('DOMContentLoaded', () => {
     if(cp){ const t=TILES[cp.pos||0]; tileInfoEl.textContent=`位置：第 ${(cp.pos||0)+1} 格（${t.name}）`; }
   }
 
-  // === 統計 ===
   function renderStats(){
     const p=players[currentIndex];
     currentPlayerNameEl.textContent=p?.name||'';
@@ -644,7 +602,6 @@ addEventListener('DOMContentLoaded', () => {
       const j=jobById(p.jobId); jobNowEl.textContent = j.name;
       const r=j.ranks[p.jobRank||0]; rankNowEl.textContent = r?.title||'—';
 
-      // 明細
       ledgerEl.innerHTML='';
       p.ledger.slice().reverse().forEach(item=>{
         const li=document.createElement('li');
@@ -653,7 +610,6 @@ addEventListener('DOMContentLoaded', () => {
         ledgerEl.appendChild(li);
       });
 
-      // 排行
       leaderboardEl.innerHTML='';
       const ranked = players.map((pp,idx)=>({ pp, idx, pv: propertyValueForPlayer(idx), sv: stockValueOf(pp), dep: pp.bankDeposit||0, loan: loansOutstanding(pp) }))
         .map(r=>({ ...r, nw: (r.pp.balance||0)+r.dep+r.pv+r.sv-r.loan }))
@@ -676,7 +632,6 @@ addEventListener('DOMContentLoaded', () => {
     allLedger.push({ time:nowStr(), player:p.name, title, amount:Math.abs(+amount||0), type, tag, balanceAfter:p.balance });
   }
 
-  // === 銀行/貸款 ===
   function formatRate(r){ return (+(r*100).toFixed(2))+'%'; }
   function renderLoanList(p){
     const list = p.loans||[];
@@ -718,17 +673,18 @@ addEventListener('DOMContentLoaded', () => {
     const btn=$('btnPromote');
     if(btn){ btn.onclick=()=>{ p.jobRank+=1; toast(`🎉 ${p.name} 升任 ${j.ranks[p.jobRank].title}！`,'good'); renderStats(); showBankPanel(p); }; }
   }
+  const INSURANCE_CFG = { premium: 600, claim: 800 };
   function showInsuranceBox(p){
     if(p.insured){
-      insuranceBoxEl.innerHTML = `<div><b>🛡️ 保險</b>｜已投保｜理賠 $ ${money(INSURANCE.claim)}</div>`;
+      insuranceBoxEl.innerHTML = `<div><b>🛡️ 保險</b>｜已投保｜理賠 $ ${money(INSURANCE_CFG.claim)}</div>`;
     }else{
-      insuranceBoxEl.innerHTML = `<div><b>🛡️ 保險</b>｜未投保｜一次性保費 $ ${money(INSURANCE.premium)}（住院事件啟動理賠） 
+      insuranceBoxEl.innerHTML = `<div><b>🛡️ 保險</b>｜未投保｜一次性保費 $ ${money(INSURANCE_CFG.premium)}（住院事件啟動理賠） 
       <button id="btnBuyIns" class="secondary" style="margin-left:8px">購買保險</button></div>`;
       const b=$('btnBuyIns'); if(b){ b.onclick=()=>{
-        if(players[currentIndex].balance < INSURANCE.premium){ alert('現金不足'); return; }
+        if(players[currentIndex].balance < INSURANCE_CFG.premium){ alert('現金不足'); return; }
         const p0=players[currentIndex];
-        p0.balance -= INSURANCE.premium; p0.expense += INSURANCE.premium; p0.insured = true;
-        pushLedger(p0,{title:'購買保險', amount:INSURANCE.premium, type:'expense', tag:'🛡️'});
+        p0.balance -= INSURANCE_CFG.premium; p0.expense += INSURANCE_CFG.premium; p0.insured = true;
+        pushLedger(p0,{title:'購買保險', amount:INSURANCE_CFG.premium, type:'expense', tag:'🛡️'});
         renderStats(); showInsuranceBox(p0);
       }; }
     }
@@ -736,7 +692,7 @@ addEventListener('DOMContentLoaded', () => {
   function showBankPanel(p){
     bankActionsEl.style.display='block';
     bankBalanceEl.textContent = '$ '+money(p.bankDeposit||0);
-    bankRateEl.textContent = formatRate(RATES.depositAPY);
+    bankRateEl.textContent = (RATES.depositAPY*100).toFixed(2)+'%';
     bankAmtEl.value = 0;
     renderLoanList(p);
     showCareerBox(p);
@@ -757,52 +713,44 @@ addEventListener('DOMContentLoaded', () => {
 
   function createLoan(p, {amount, purpose, years=3, name='' }){
     const rate = rateFor(purpose, years);
-    const r = rate/PER_LAP; const n = years*PER_LAP;
+    const r = rate/12; const n = years*12; // 以月為期數，對應每圈處理一次
     const pay = r>0 ? amount * r / (1 - Math.pow(1+r,-n)) : amount/n;
     const loan = {id:Math.random().toString(36).slice(2), purpose, years, name, rate, payment:pay, outstanding:amount, remain:n};
     p.loans.push(loan);
-    pushLedger(p,{title:`取得${purpose==='property'?'地產':purpose==='stock'?'股票':'投資'}貸款 $${money(amount)}`, amount, type:'income', tag:'💳'});
     p.balance += amount;
+    pushLedger(p,{title:`取得${purpose==='property'?'地產':purpose==='stock'?'股票':'投資'}貸款 $${money(amount)}`, amount, type:'income', tag:'💳'});
   }
   function processLoansEachLap(p){
-    if(!p.loans?.length) return {paid:0,interestTotal:0};
-    let paid=0, interestTotal=0;
+    if(!p.loans?.length) return;
     p.loans.forEach(l=>{
       if(l.remain<=0 || l.outstanding<=0) return;
-      const r = l.rate/PER_LAP;
+      const r = l.rate/12;
       const interest = l.outstanding * r;
       let principal = l.payment - interest; if(principal<0) principal=0; if(principal>l.outstanding) principal=l.outstanding;
       const pay = principal + interest;
       l.outstanding -= principal; l.remain -= 1;
       p.balance -= pay; p.expense += pay;
-      interestTotal += interest; paid+=pay;
       pushLedger(p,{title:`貸款繳款（${l.name|| (l.purpose==='property'?'地產':l.purpose)}）`, amount:pay, type:'expense', tag:'💳'});
     });
-    const before = (p.loans||[]).length;
     p.loans = p.loans.filter(l=>l.outstanding>1 && l.remain>0);
-    if(before>0 && (!p.loans || p.loans.length<before)) toast('🏆 成就：清償貸款','good');
-    return {paid, interestTotal};
   }
   function processDepositInterestEachLap(p){
-    const dep = p.bankDeposit||0; if(dep<=0) return 0;
-    const interest = dep * (RATES.depositAPY/PER_LAP);
+    const dep = p.bankDeposit||0; if(dep<=0) return;
+    const interest = dep * (RATES.depositAPY/12);
     p.bankDeposit += interest; p.income += interest;
     pushLedger(p,{title:`銀行存款利息`, amount:interest, type:'income', tag:'🏦'});
-    return interest;
   }
   function processDividendsEachLap(p){
     let total=0;
     for(const s of MARKET.list){
       const sym=s.symbol; const {qty=0}=p.stocks[sym]||{}; if(qty<=0) continue;
       const px = MARKET.price[sym]||0; const dy = MARKET.yield[sym]||0;
-      const div = qty * px * (dy/PER_LAP);
+      const div = qty * px * (dy/12);
       if(div>0){ p.balance += div; p.income += div; total += div; }
     }
     if(total>0) pushLedger(p,{title:`股票股利入帳`, amount:total, type:'income', tag:'💰'});
-    return total;
   }
 
-  // === 市場/持股表 ===
   function renderHoldings(p, highlightSym=null){
     const rows = []; let any=false;
     for(const s of MARKET.list){
@@ -828,25 +776,16 @@ addEventListener('DOMContentLoaded', () => {
       </table>
     `;
   }
-
   function setNewsMsg(msg){ resultEl.textContent = msg; setTimeout(()=>{ if(resultEl.textContent===msg) resultEl.textContent=''; }, 8000); }
 
-  // === LAP：過起點時處理（薪水＋利息＋股利＋貸款） ===
   function onCompleteLap(p){
     p.laps = (p.laps||0)+1;
-
-    // 0) 發薪
     const sal = salaryOf(p); p.balance += sal; p.income += sal; pushLedger(p,{title:`薪水發放`, amount:sal, type:'income', tag:'👔'});
-
-    // 1) 存款利息
     processDepositInterestEachLap(p);
-    // 2) 股利
     processDividendsEachLap(p);
-    // 3) 貸款繳款（本息）
     processLoansEachLap(p);
     renderStats();
 
-    // 4) 顯示銀行操作面板（每圈可存/提、買保險、升職）
     cardTitleEl.textContent='🏦 月結（完成一圈）';
     cardTextEl.innerHTML=`薪水、利息、股利、貸款已結算，可選擇存入或提領，並檢視保險與升職條件。`;
     cardAmountEl.textContent='';
@@ -856,23 +795,20 @@ addEventListener('DOMContentLoaded', () => {
     ventureActionsEl.style.display='none';
     showBankPanel(p);
     cardEl.style.display='block';
-
     okBtn.onclick = ()=>{ bankActionsEl.style.display='none'; cardEl.style.display='none'; };
   }
 
-  // === 投資事業：事件與結算 ===
   function offerVenture(p){
-    const v = VENTURES[Math.floor(Math.random()*VENTURES.length)];
+    const V = VENTURES[Math.floor(Math.random()*VENTURES.length)];
     const buff = clamp((p.courseBuffNext||0), 0, 0.3);
-    const showChance = Math.min(0.95, v.base + buff);
-    ventureNameEl.textContent = v.name;
+    const showChance = Math.min(0.95, V.base + buff);
+    ventureNameEl.textContent = V.name;
     ventureChanceEl.textContent = Math.round(showChance*100)+'%';
     ventureAmtEl.value = 500;
 
     cardTitleEl.textContent='📦 投資事業';
-    cardTextEl.innerHTML=`機會：<b>${v.name}</b>。<br>成功率（含課程加成）約 <b>${Math.round(showChance*100)}%</b>；若成功，報酬約 <b>${Math.round(v.win[0]*100)}% ~ ${Math.round(v.win[1]*100)}%</b>；失敗損失約 <b>${Math.round(-v.lose[0]*100)}% ~ ${Math.round(-v.lose[1]*100)}%</b>。<br>可自訂投入金額，亦可使用銀行貸款。`;
+    cardTextEl.innerHTML=`機會：<b>${V.name}</b>。<br>成功率（含課程加成）約 <b>${Math.round(showChance*100)}%</b>；成功報酬 <b>${Math.round(V.win[0]*100)}% ~ ${Math.round(V.win[1]*100)}%</b>；失敗損失 <b>${Math.round(-V.lose[0]*100)}% ~ ${Math.round(-V.lose[1]*100)}%</b>。`;
     cardAmountEl.textContent='';
-
     stockActionsEl.style.display='none'; holdingsEl.style.display='none'; bankActionsEl.style.display='none';
     ventureActionsEl.style.display='flex';
     cardAvatarEl.src = p.img; characterNameEl.textContent=p.name;
@@ -881,12 +817,12 @@ addEventListener('DOMContentLoaded', () => {
     btnInvest.onclick=()=>{
       const amt = Math.max(100, parseInt(ventureAmtEl.value||'500',10));
       const useLoan = ventureUseLoanEl.checked; const years = parseInt(ventureYearsEl.value||'3',10);
-      if(useLoan) createLoan(p,{amount:amt, purpose:'venture', years, name:v.name});
+      if(useLoan) createLoan(p,{amount:amt, purpose:'venture', years, name:V.name});
       if(p.balance<amt){ alert('現金不足，請使用貸款或降低金額'); return; }
       p.balance -= amt; p.expense += amt;
-      p.pendingVenture = { ...v, amount:amt, agreed:true }; // 記錄
-      pushLedger(p,{title:`投資事業－${v.name}（成本）`, amount:amt, type:'expense', tag:'📦'});
-      toast(`已投入 $${money(amt)} 至 ${v.name}，下回合自動結算。`,'good');
+      p.pendingVenture = { ...V, amount:amt, agreed:true };
+      pushLedger(p,{title:`投資事業－${V.name}（成本）`, amount:amt, type:'expense', tag:'📦'});
+      toast(`已投入 $${money(amt)} 至 ${V.name}，下回合自動結算。`,'good');
       ventureActionsEl.style.display='none'; cardEl.style.display='none'; renderStats(); autoSave();
     };
     btnSkipV.onclick=()=>{ ventureActionsEl.style.display='none'; cardEl.style.display='none'; };
@@ -894,7 +830,6 @@ addEventListener('DOMContentLoaded', () => {
   function resolveVentureIfAnyAtTurnStart(p){
     const inv = p.pendingVenture;
     if(!inv || !inv.agreed){ return false; }
-    // 成功率：base + 課程加成（本次用完歸零）
     const buff = clamp((p.courseBuffNext||0),0,0.3);
     const chance = Math.min(0.95, inv.base + buff);
     const success = Math.random() < chance;
@@ -906,10 +841,8 @@ addEventListener('DOMContentLoaded', () => {
     p.balance += payout; if(pl>=0) p.income += pl; else p.expense += -pl;
     pushLedger(p,{title:`投資事業結算－${inv.name}（${pl>=0?'+':'-'}$${money(Math.abs(pl))}）`, amount:Math.abs(pl), type:pl>=0?'income':'expense', tag:'📦'});
     p.pendingVenture=null;
-    // 課程加成用完歸零
     if(buff>0) p.courseBuffNext = 0;
 
-    // 顯示結果卡
     cardTitleEl.textContent='📦 投資結算';
     cardTextEl.innerHTML=`${inv.name}：${success?'成功 ✅':'失敗 ❌'}<br>回收：$ ${money(payout)}（損益 ${pl>=0?'+':'-'}$ ${money(Math.abs(pl))}）`;
     cardAmountEl.textContent='';
@@ -920,13 +853,15 @@ addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  // === 事件處理（課程 / 投資事業 / 住院） ===
+  // === 事件處理（課程 / 投資事業 / 住院 / 股票 / 地產） ===
   function applyTileEffect(p){
     const tile=TILES[p.pos||0];
-    buyBtn.style.display='none'; buyBtn.onclick=null;
+    // 先關閉所有工具面板
     stockActionsEl.style.display='none'; bankActionsEl.style.display='none'; holdingsEl.style.display='none'; ventureActionsEl.style.display='none';
-    btnBuy.onclick=null; btnSell.onclick=null;
+    // 僅移除臨時按鈕，保留主要 buyBtn
     Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove());
+    buyBtn.style.display='none'; buyBtn.onclick=null;
+    btnBuy.onclick=null; btnSell.onclick=null;
 
     let title=''; let text=''; let delta=0;
 
@@ -939,13 +874,17 @@ addEventListener('DOMContentLoaded', () => {
       case 'shop': { const cost=randInt(tile.min, tile.max); title='購物花費'; text='在商店買了需要的東西。'; delta=-cost; p.expense+=cost; p.balance-=cost; break; }
 
       case 'stock': {
-        // 下拉清單
+        // 強制顯示股票面板
+        stockActionsEl.style.display='flex'; holdingsEl.style.display='block'; bankActionsEl.style.display='none'; ventureActionsEl.style.display='none';
+
+        // 建立清單
         stockSelectEl.innerHTML='';
         MARKET.list.forEach(s=>{
           const opt=document.createElement('option'); opt.value=s.symbol; opt.textContent=`${s.symbol}（${s.name}）`;
           stockSelectEl.appendChild(opt);
         });
         stockSelectEl.selectedIndex = Math.floor(Math.random()*MARKET.list.length);
+
         const updatePriceUI = () => {
           const sym = stockSelectEl.value; const px = MARKET.price[sym]; const dy = MARKET.yield[sym]||0;
           stockPriceEl.textContent = (MARKET.halted[sym]>0)? '停牌中' : ('$ ' + money(px));
@@ -955,15 +894,18 @@ addEventListener('DOMContentLoaded', () => {
           renderHoldings(p, sym);
         };
         updatePriceUI();
+
         title=`股票：買賣`; delta=0;
-        stockActionsEl.style.display='flex'; stockSelectEl.onchange = updatePriceUI;
+        cardTitleEl.textContent=title; cardAmountEl.textContent=''; cardAvatarEl.src=p.img; characterNameEl.textContent=p.name;
+        cardEl.style.display='block';
+        stockSelectEl.onchange = updatePriceUI;
 
         // 買入（可選貸款）
         btnBuy.onclick=()=>{
           const sym = stockSelectEl.value; const qty = Math.max(1, parseInt(stockQtyEl.value||'1',10));
           const px = MARKET.price[sym]; const cost = qty * px;
           const useLoan = useLoanStockEl.checked; const years = parseInt(stockLoanYearsEl.value||'3',10);
-          if(useLoan){ createLoan(p, {amount:cost, purpose:'stock', years, name:`${sym}`}); }
+          if(useLoan) createLoan(p, {amount:cost, purpose:'stock', years, name:`${sym}`});
           if(p.balance < cost){ alert('現金不足，改用「使用貸款」或降低數量。'); return; }
           const cur = p.stocks[sym] || {qty:0,avg:0};
           const newQty = cur.qty + qty;
@@ -992,19 +934,24 @@ addEventListener('DOMContentLoaded', () => {
       case 'property': {
         const me=currentIndex; const owner=tile.ownerIndex; const rent = (tile.baseRent||0) * (tile.level||1);
         const upgradeCost = Math.floor(tile.price * 0.6);
+
+        // 確保只清除臨時工具，不隱藏主按鈕
+        buyBtn.onclick=null; buyBtn.style.display='inline-block';
+
         if(owner==null){
-          title=tile.name; text=`無人擁有，可購買（價格 $ ${money(tile.price)}，租金 $ ${money(rent)}）。`; delta=0;
-          buyBtn.style.display='inline-block'; buyBtn.textContent = `現金購買（$ ${money(tile.price)}）`;
+          cardTitleEl.textContent=tile.name;
+          cardTextEl.innerHTML=`無人擁有，可購買（價格 $ ${money(tile.price)}，租金 $ ${money(rent)}）。`;
+          buyBtn.textContent = `現金購買（$ ${money(tile.price)}）`;
           buyBtn.onclick=()=>{
             if(p.balance < tile.price){ alert('現金不足，可使用「貸款購買」。'); return; }
             p.expense += tile.price; p.balance -= tile.price;
             pushLedger(p,{title:`購買 ${tile.name}`, amount:tile.price, type:'expense', tag:'🏠'});
             tile.ownerIndex = me; renderStats();
             cardTextEl.textContent = `已購買 ${tile.name}！目前等級 Lv${tile.level}，租金 $ ${money(rent)}。`;
-            buyBtn.style.display='none';
+            buyBtn.style.display='none'; Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove());
           };
-          // 貸款購買選項
-          const termSel=document.createElement('select'); termSel.innerHTML = `<option value="1">1 年</option><option value="2">2 年</option><option value="3" selected>3 年</option><option value="4">4 年</option><option value="5">5 年</option>`; termSel.className='tmpbtn';
+          // 貸款購買
+          const termSel=document.createElement('select'); termSel.className='tmpbtn'; termSel.innerHTML = `<option value="1">1 年</option><option value="2">2 年</option><option value="3" selected>3 年</option><option value="4">4 年</option><option value="5">5 年</option>`;
           const loanBtn=document.createElement('button'); loanBtn.textContent='貸款購買'; loanBtn.className='tmpbtn';
           loanBtn.onclick=()=>{
             const years = parseInt(termSel.value||'3',10);
@@ -1016,23 +963,29 @@ addEventListener('DOMContentLoaded', () => {
             buyBtn.style.display='none'; Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove());
           };
           extraBtns.insertBefore(termSel, okBtn); extraBtns.insertBefore(loanBtn, okBtn);
+          cardEl.style.display='block';
         } else if(owner!==me){
-          title=tile.name; text=`此地產屬於 ${players[owner].name}，需支付租金 $ ${money(rent)}。`;
-          delta=-rent; p.expense+=rent; p.balance-=rent; players[owner].income+=rent; players[owner].balance+=rent;
+          cardTitleEl.textContent=tile.name;
+          cardTextEl.textContent=`此地產屬於 ${players[owner].name}，需支付租金 $ ${money(rent)}。`;
+          p.expense+=rent; p.balance-=rent; players[owner].income+=rent; players[owner].balance+=rent;
+          cardAmountEl.textContent=''; cardEl.style.display='block';
+          buyBtn.style.display='none'; Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove());
         } else {
-          title=tile.name; text=`你擁有這個地產（Lv${tile.level}/${tile.maxLevel}），可選擇升級提高租金。`; delta=0;
+          cardTitleEl.textContent=tile.name;
+          cardTextEl.innerHTML=`你擁有這個地產（Lv${tile.level}/${tile.maxLevel}），可選擇升級提高租金。`;
           if(tile.level < tile.maxLevel){
-            buyBtn.style.display='inline-block'; buyBtn.textContent = `升級至 Lv${tile.level+1}（$ ${money(upgradeCost)}）`;
+            buyBtn.textContent = `升級至 Lv${tile.level+1}（$ ${money(upgradeCost)}）`;
             buyBtn.onclick=()=>{
-              if(p.balance < upgradeCost){ alert('現金不足'); return; }
+              if(p.balance < upgradeCost){ alert('現金不足，可使用「貸款升級」。'); return; }
               p.expense += upgradeCost; p.balance -= upgradeCost; tile.level += 1;
               pushLedger(p,{title:`${tile.name} 升級至 Lv${tile.level}`, amount:upgradeCost, type:'expense', tag:'🏠'});
               renderStats(); const newRent = (tile.baseRent||0) * (tile.level||1);
               cardTextEl.textContent = `升級成功！新租金 $ ${money(newRent)}。`;
               if(tile.level>=tile.maxLevel) buyBtn.style.display='none';
             };
+            buyBtn.style.display='inline-block';
             // 貸款升級
-            const termSel=document.createElement('select'); termSel.innerHTML = `<option value="1">1 年</option><option value="2">2 年</option><option value="3" selected>3 年</option><option value="4">4 年</option><option value="5">5 年</option>`; termSel.className='tmpbtn';
+            const termSel=document.createElement('select'); termSel.className='tmpbtn'; termSel.innerHTML = `<option value="1">1 年</option><option value="2">2 年</option><option value="3" selected>3 年</option><option value="4">4 年</option><option value="5">5 年</option>`;
             const loanBtn=document.createElement('button'); loanBtn.textContent='貸款升級'; loanBtn.className='tmpbtn';
             loanBtn.onclick=()=>{
               const years = parseInt(termSel.value||'3',10);
@@ -1044,39 +997,40 @@ addEventListener('DOMContentLoaded', () => {
               if(tile.level>=tile.maxLevel){ buyBtn.style.display='none'; Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove()); }
             };
             extraBtns.insertBefore(termSel, okBtn); extraBtns.insertBefore(loanBtn, okBtn);
-          } else { buyBtn.style.display='none'; }
+          } else { buyBtn.style.display='none'; Array.from(extraBtns.querySelectorAll('.tmpbtn')).forEach(n=>n.remove()); }
+          cardEl.style.display='block';
         }
         break;
       }
 
       case 'event': default: {
-        const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
-        if(ev.type==='course'){
-          const kinds=[{k:'finance', n:'理財課程', fee:randInt(300,800)}, {k:'econ', n:'經濟學', fee:randInt(300,800)}, {k:'mgmt', n:'管理學', fee:randInt(300,800)}];
-          const c = kinds[Math.floor(Math.random()*kinds.length)];
+        const kinds=['course','course','course','venture','venture','injury'];
+        const ttype = kinds[Math.floor(Math.random()*kinds.length)];
+        if(ttype==='course'){
+          const kinds2=[{k:'finance', n:'理財課程', fee:randInt(300,800)}, {k:'econ', n:'經濟學', fee:randInt(300,800)}, {k:'mgmt', n:'管理學', fee:randInt(300,800)}];
+          const c = kinds2[Math.floor(Math.random()*kinds2.length)];
           title = `📚 ${c.n}`;
           if(p.balance<c.fee){
             text = `想上 ${c.n}（學費 $ ${money(c.fee)}），但現金不足，改天再來。`;
-            cardTitleEl.textContent=title; cardTextEl.innerHTML=text; cardAmountEl.textContent=''; cardAvatarEl.src=p.img; characterNameEl.textContent=p.name; cardEl.style.display='block';
-            break;
+          }else{
+            p.balance -= c.fee; p.expense += c.fee;
+            p.courses[c.k] = (p.courses[c.k]||0)+1;
+            p.courseBuffNext = clamp((p.courseBuffNext||0)+0.10, 0, 0.30);
+            pushLedger(p,{title:`繳交 ${c.n} 學費`, amount:c.fee, type:'expense', tag:'📚'});
+            text = `完成 ${c.n}！下回合投資成功率 <b>+10%</b>（目前加成 ${(Math.round((p.courseBuffNext)*100))}%）。`;
           }
-          p.balance -= c.fee; p.expense += c.fee;
-          p.courses[c.k] = (p.courses[c.k]||0)+1;
-          p.courseBuffNext = clamp((p.courseBuffNext||0)+0.10, 0, 0.30); // 下回合投資成功率 +10%，上限 +30%
-          pushLedger(p,{title:`繳交 ${c.n} 學費`, amount:c.fee, type:'expense', tag:'📚'});
-          text = `完成 ${c.n}！下回合投資成功率 <b>+10%</b>（目前加成 ${(Math.round((p.courseBuffNext)*100))}%）。<br>升職所需課程也同步累積。`;
           cardTitleEl.textContent=title; cardTextEl.innerHTML=text; cardAmountEl.textContent=''; cardAvatarEl.src=p.img; characterNameEl.textContent=p.name; cardEl.style.display='block';
-        }else if(ev.type==='venture'){
+        }else if(ttype==='venture'){
           return offerVenture(p);
-        }else if(ev.type==='injury'){
-          const fee = 300; // 住院花費
+        }else{
+          const fee = 300;
           p.skipTurns = (p.skipTurns||0)+1;
           p.balance -= fee; p.expense += fee;
           let payout = 0;
           if(p.insured){ payout = INSURANCE.claim; p.balance += payout; p.income += payout; }
           pushLedger(p,{title:`住院費`, amount:fee, type:'expense', tag:'🏥'});
           if(payout>0) pushLedger(p,{title:`保險理賠`, amount:payout, type:'income', tag:'🛡️'});
-          title='🏥 受傷住院'; text=`住院休息，下一回合將自動跳過一次。已支出費用 $ ${money(fee)}${payout>0?`，保險理賠 $ ${money(payout)}`:''}。`; delta=0;
+          title='🏥 受傷住院'; text=`住院休息，下一回合將自動跳過一次。已支出費用 $ ${money(fee)}${payout>0?`，保險理賠 $ ${money(payout)}`:''}。`;
           cardTitleEl.textContent=title; cardTextEl.innerHTML=text; cardAmountEl.textContent=''; cardAvatarEl.src=p.img; characterNameEl.textContent=p.name; cardEl.style.display='block';
         }
         break;
@@ -1092,7 +1046,6 @@ addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // === 市場計時器 ===
   function startMarketTimer(){
     stopMarketTimer();
     marketTimer = setInterval(()=>{
@@ -1111,7 +1064,6 @@ addEventListener('DOMContentLoaded', () => {
   }
   function stopMarketTimer(){ if(marketTimer){ clearInterval(marketTimer); marketTimer=null; } }
 
-  // === 遊戲起迄 ===
   function startGame({reseed=false}={}){
     if(players.length<1){ alert('請至少加入 1 位玩家'); return; }
     roundMax = clamp(parseInt(roundLimitInput.value||'200',10),1,200);
@@ -1148,16 +1100,12 @@ addEventListener('DOMContentLoaded', () => {
   function advanceTurn(){
     cardEl.style.display='none'; if(!players.length || gameOver) return;
     currentIndex = (currentIndex + 1) % players.length;
-    if(currentIndex===0){
-      roundNow+=1; if(roundNow>roundMax){ endGameByRounds(); return; }
-    }
+    if(currentIndex===0){ roundNow+=1; if(roundNow>roundMax){ endGameByRounds(); return; } }
     renderStats(); resultEl.textContent='';
 
     const p=players[currentIndex];
-    // 回合開始：先結算投資事業
     if(resolveVentureIfAnyAtTurnStart(p)) return;
 
-    // 若有住院跳過
     if(p.skipTurns>0){
       p.skipTurns -= 1;
       cardTitleEl.textContent='🏥 住院休息'; cardTextEl.textContent='本回合跳過一次，下回合再加油！'; cardAmountEl.textContent='';
@@ -1169,11 +1117,11 @@ addEventListener('DOMContentLoaded', () => {
     autoSave();
   }
 
-  // 擲骰
   diceEl.addEventListener('click',()=>{
     if(gameOver){ return; }
     if(!players.length){ alert('請先加入玩家'); return; }
-    const cardVisible = window.getComputedStyle(cardEl).display !== 'none'; if(cardVisible){ return; }
+    const cardVisible = window.getComputedStyle(cardEl).display !== 'none';
+    if(cardVisible){ /* 卡片打開時，仍允許在卡內做交易；擲骰被暫停 */ return; }
 
     MARKET.tickAll();
 
@@ -1213,7 +1161,6 @@ addEventListener('DOMContentLoaded', () => {
   reseedNewBtn.addEventListener('click',()=>startGame({reseed:true}));
   startBtn.addEventListener('click',()=>startGame({reseed:true}));
 
-  // 存檔 UI
   saveBtn.addEventListener('click', ()=> saveToSlot(saveSlot));
   loadBtn.addEventListener('click', ()=> loadFromSlot(saveSlot));
   newSlotBtn.addEventListener('click', ()=>{
@@ -1221,19 +1168,8 @@ addEventListener('DOMContentLoaded', () => {
     if(!n) return; saveToSlot(n);
   });
 
-  // 啟動
-  buildJobSelect();
-  buildAvatars();
-  renderBoard();
-  renderStats();
+  function showBankPanel(p){ /* 已於前方定義，這裡保持函式位置即可 */ }
 
-  // 方便操控：空白鍵擲骰、Enter 關卡片
-  document.addEventListener('keydown', (e)=>{
-    if(e.key===' '){ e.preventDefault(); diceEl.click(); }
-    if(e.key==='Enter'){ e.preventDefault(); $('okBtn').click(); }
-  });
-
-  // 基本自測（網址帶 #test）
   function logTest(msg){ testOutput.style.display='block'; testOutput.textContent += msg + '\n'; }
   function runTests(){
     try{
@@ -1245,6 +1181,18 @@ addEventListener('DOMContentLoaded', () => {
     }catch(e){ logTest('❌ '+(e?.message||e)); }
   }
   if(location.hash==='#test'){ runTests(); }
+
+  // 啟動
+  function buildJobSelect(){ jobSelect.innerHTML = JOBS.map(j=>`<option value="${j.id}">${j.name}（基薪 $${j.base}）</option>`).join(''); }
+  buildJobSelect();
+  buildAvatars();
+  renderBoard();
+  renderStats();
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key===' '){ e.preventDefault(); diceEl.click(); }
+    if(e.key==='Enter'){ e.preventDefault(); $('okBtn').click(); }
+  });
 });
 </script>
 </body>
